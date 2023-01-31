@@ -1,48 +1,36 @@
+using ScaffoldSpectra;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-public class RazorPageCommand : Command<RazorPageCommand.Settings>
+public class ScaffoldSettings : CommandSettings
 {
-    public class Settings : CommandSettings
-    {
-        [CommandArgument(0, "[Name]")]
-        public string Name { get; set; } = default!;
-        
-        [CommandArgument(1, "[Type]")]
-        public string Type { get; set; } = default!;
-
-        [CommandArgument(2, "[DbContext]")]
-        public string DbContext { get; set; } = default!;
-    }
-
-    public override int Execute(CommandContext context, Settings settings)
-    {
-        AnsiConsole.MarkupLine($"Name - {settings.Name}");
-        AnsiConsole.MarkupLine($"Type - {settings.Type}");
-        AnsiConsole.MarkupLine($"DbContext - {settings.DbContext}");
-        return 0;
-    }
+    [CommandArgument(0, "[Generator]")]
+    public string GeneratorName { get; set; } = default!;
 }
 
-public class MinimalApiCommand : Command<MinimalApiCommand.Settings>
+public class MinimalApiSettings : ScaffoldSettings
 {
-    public class Settings : CommandSettings
-    {
-        [CommandArgument(0, "[Name]")]
-        public string Name { get; set; } = default!;
-        
-        [CommandArgument(1, "[Endpoints Class]")]
-        public string EndpointsClass { get; set; } = default!;
+    [CommandArgument(0, "[ModelFile]")]
+    public string ModelFile { get; set; } = default!;
+}
 
-        [CommandArgument(2, "[DbContext]")]
-        public string DbContext { get; set; } = default!;
-    }
-
-    public override int Execute(CommandContext context, Settings settings)
+public class MinimalApiCommand : Command<MinimalApiSettings>
+{
+    public override int Execute(CommandContext context, MinimalApiSettings settings)
     {
-        AnsiConsole.MarkupLine($"Name - {settings.Name}");
-        AnsiConsole.MarkupLine($"Endpoints Class - {settings.EndpointsClass}");
-        AnsiConsole.MarkupLine($"DbContext - {settings.DbContext}");
+        var modelFile = settings.ModelFile;
+        if (string.IsNullOrEmpty(modelFile))
+        {
+            var allFiles = Helper.GetAllFiles(@"C:\Users\Deep\source\repos\deepchoudhery\ScaffoldSpectra\", ".cs");
+            modelFile = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Pick a valid model file")
+                    .PageSize(10)
+                    .MoreChoicesText("[grey](Move up and down to reveal more files)[/]")
+                    .AddChoices(allFiles));
+        }
+        AnsiConsole.MarkupLine($"Model file name - {modelFile}");
         return 0;
     }
+
 }
