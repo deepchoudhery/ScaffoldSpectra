@@ -24,9 +24,12 @@ namespace ScaffoldSpectra
                         .PageSize(10)
                         .MoreChoicesText("[grey](Move up and down to reveal more generators)[/]")
                         .AddChoices(Generators.Keys.ToList()));
+
                 Array.Resize(ref args, 2);
-                Generators.TryGetValue(generatorDisplayName, out var generatorName);
-                args[1] = generatorName;
+                if (Generators.TryGetValue(generatorDisplayName, out var generatorName))
+                {
+                    args[1] = generatorName;
+                }
             }
 
             return args;
