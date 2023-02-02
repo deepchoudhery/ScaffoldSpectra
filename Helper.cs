@@ -16,8 +16,35 @@ namespace ScaffoldSpectra
 
         internal static string[] ValidateArgs(string[] args)
         {
-            if (args.Length == 1 || args.Length >= 2 && !Generators.Values.ToList().Contains(args[1]))
+            if (args.Length == 1)
             {
+                string generatorDisplayName = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Pick a valid dotnet-scaffold generator")
+                        .PageSize(10)
+                        .MoreChoicesText("[grey](Move up and down to reveal more generators)[/]")
+                        .AddChoices(Generators.Keys.ToList()));
+
+                Array.Resize(ref args, 2);
+                if (Generators.TryGetValue(generatorDisplayName, out var generatorName))
+                {
+                    args[1] = generatorName;
+                    return args;
+                }
+            }
+
+            if (args.Length >= 2)
+            {
+                if (IsHelp(args[1]))
+                {
+                    return args;
+                }
+
+                if (Generators.Values.ToList().Contains(args[1]))
+                {
+                    return args;
+                }
+
                 string generatorDisplayName = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Pick a valid dotnet-scaffold generator")
@@ -42,5 +69,10 @@ namespace ScaffoldSpectra
             { "Minimal API w/ endpoints", "minimalapi"  },
             { "Controller", "controller" }
         };
+
+        private static bool IsHelp(string arg)
+        {
+            return arg == "help" || arg == "h" || arg == "-h" || arg == "--help";
+        }
     }
 }
